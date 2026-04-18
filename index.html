@@ -3,382 +3,315 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Cyber Security Simulator</title>
+<title>CSS</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#000;color:#c0c0c0;font-family:'Segoe UI',sans-serif;min-height:100vh;overflow-x:hidden}
+:root{--bg:#0a0010;--card:#110018;--border:#2a0044;--accent:#9933ff;--text:#ccc;--dim:#555}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:100vh;overflow-x:hidden}
+canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none}
+.app{position:relative;z-index:1}
 
-/* КОСМОС */
-#space{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none}
-canvas{position:absolute;top:0;left:0;width:100%;height:100%}
+/* HEADER */
+.hdr{padding:20px 16px 0;text-align:center}
+.hdr-dragon{font-size:48px;display:block;filter:drop-shadow(0 0 20px #9933ff88);animation:float 4s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.hdr-title{font-size:22px;font-weight:800;color:#fff;letter-spacing:-0.5px;margin-top:8px}
+.hdr-sub{font-size:11px;color:#6633aa;letter-spacing:3px;text-transform:uppercase;margin-top:4px}
 
-/* КОНТЕНТ */
-.app{position:relative;z-index:10}
+/* TABS */
+.tabs{display:flex;gap:0;padding:20px 16px 0;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex-shrink:0;padding:10px 18px;font-size:13px;font-weight:600;color:#444;background:none;border:none;cursor:pointer;position:relative;transition:color 0.2s;letter-spacing:0.3px}
+.tab.on{color:#fff}
+.tab.on::after{content:'';position:absolute;bottom:0;left:16px;right:16px;height:2px;background:linear-gradient(90deg,#9933ff,#cc66ff);border-radius:2px}
+.tab.lock{color:#333}
 
-/* ШАПКА */
-.header{background:linear-gradient(180deg,rgba(5,0,15,0.95),rgba(5,0,15,0.7));border-bottom:1px solid rgba(80,0,120,0.4);padding:18px 16px 14px;text-align:center;position:sticky;top:0;z-index:100;backdrop-filter:blur(10px)}
-.header-icon{font-size:32px;margin-bottom:4px;filter:drop-shadow(0 0 10px #8800ff)}
-.header h1{font-size:16px;font-weight:700;color:#ddd;letter-spacing:2px;text-transform:uppercase}
-.header p{font-size:10px;color:#660099;margin-top:3px;letter-spacing:3px;text-transform:uppercase}
+/* CONTENT */
+.pages{padding:16px}
+.page{display:none}
+.page.on{display:block}
 
-/* НАВ */
-.nav{display:flex;overflow-x:auto;gap:6px;padding:10px 14px;background:rgba(5,0,15,0.85);border-bottom:1px solid rgba(80,0,120,0.2);scrollbar-width:none;backdrop-filter:blur(8px)}
-.nav::-webkit-scrollbar{display:none}
-.nav-btn{flex-shrink:0;padding:5px 12px;border-radius:4px;border:1px solid rgba(100,0,150,0.3);background:transparent;color:#666;font-size:11px;cursor:pointer;transition:all 0.2s;white-space:nowrap;letter-spacing:0.5px}
-.nav-btn.active{background:rgba(100,0,150,0.2);border-color:rgba(150,0,200,0.6);color:#bb88ff}
-.nav-btn.locked{color:#444;border-color:rgba(60,60,60,0.3)}
-.nav-btn.locked:hover{border-color:rgba(100,0,150,0.3);color:#666}
+/* SECTION LABEL */
+.slabel{font-size:10px;font-weight:700;color:#6633aa;letter-spacing:2px;text-transform:uppercase;margin:20px 0 10px}
 
-/* КОНТЕНТ */
-.content{padding:14px;max-width:600px;margin:0 auto}
-.section{display:none}
-.section.active{display:block}
+/* HERO CARD */
+.hero{background:linear-gradient(135deg,#1a0033,#0d001a);border:1px solid #2a0044;border-radius:16px;padding:20px;margin-bottom:12px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-40px;right:-40px;width:120px;height:120px;background:radial-gradient(circle,#9933ff22,transparent);border-radius:50%}
+.hero-title{font-size:16px;font-weight:700;color:#fff;margin-bottom:6px}
+.hero-text{font-size:13px;color:#888;line-height:1.7}
 
-/* КАРТОЧКИ */
-.card{background:rgba(8,3,18,0.85);border:1px solid rgba(80,0,120,0.25);border-radius:8px;padding:14px;margin-bottom:10px;position:relative;overflow:hidden;backdrop-filter:blur(4px)}
-.card::before{content:'';position:absolute;top:0;left:0;width:2px;height:100%;background:var(--accent,#6600aa)}
-.card-title{font-size:13px;font-weight:600;color:#bbb;margin-bottom:8px;display:flex;align-items:center;gap:7px;letter-spacing:0.5px}
-.card-title .icon{font-size:16px}
-.card p{font-size:12px;color:#666;line-height:1.7}
+/* GRID CARDS */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.gcard{background:#0d0018;border:1px solid #1e0033;border-radius:12px;padding:14px}
+.gcard-icon{font-size:24px;margin-bottom:8px}
+.gcard-title{font-size:12px;font-weight:700;color:#ddd;margin-bottom:4px}
+.gcard-text{font-size:11px;color:#555;line-height:1.5}
 
-/* СПИСОК */
-.list{list-style:none}
-.list li{font-size:12px;color:#777;padding:5px 0;border-bottom:1px solid rgba(80,0,120,0.1);display:flex;align-items:flex-start;gap:7px;line-height:1.5}
-.list li:last-child{border-bottom:none}
-.list li::before{content:'›';color:#6600aa;flex-shrink:0;margin-top:1px}
+/* LIST CARD */
+.lcard{background:#0d0018;border:1px solid #1e0033;border-radius:12px;padding:16px;margin-bottom:10px}
+.lcard-head{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.lcard-icon{width:36px;height:36px;background:#1a0033;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.lcard-title{font-size:14px;font-weight:700;color:#fff}
+.lcard-sub{font-size:11px;color:#555;margin-top:1px}
+.lcard ul{list-style:none}
+.lcard li{font-size:12px;color:#777;padding:5px 0;border-bottom:1px solid #1a0028;display:flex;gap:8px;line-height:1.5}
+.lcard li:last-child{border:none}
+.lcard li::before{content:'—';color:#4400aa;flex-shrink:0}
 
-/* БЕЙДЖИ */
-.badge{display:inline-block;padding:2px 7px;border-radius:3px;font-size:10px;font-weight:600;margin:2px;letter-spacing:0.5px}
-.badge-purple{background:rgba(100,0,150,0.15);color:#9944cc;border:1px solid rgba(100,0,150,0.3)}
-.badge-green{background:rgba(0,100,50,0.15);color:#44aa77;border:1px solid rgba(0,100,50,0.3)}
-.badge-red{background:rgba(100,0,0,0.15);color:#aa4444;border:1px solid rgba(100,0,0,0.3)}
-.badge-dim{background:rgba(40,40,40,0.3);color:#555;border:1px solid rgba(60,60,60,0.3)}
+/* PALETTE */
+.pal{display:flex;gap:6px;margin-top:8px}
+.pc{flex:1;border-radius:8px;height:40px;position:relative}
+.pc span{position:absolute;bottom:-16px;left:50%;transform:translateX(-50%);font-size:9px;color:#444;white-space:nowrap;font-family:monospace}
 
-/* КОМНАТА */
-.room-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
-.room-item{background:rgba(8,3,18,0.85);border:1px solid rgba(80,0,120,0.2);border-radius:7px;padding:10px;text-align:center;backdrop-filter:blur(4px)}
-.room-item .emoji{font-size:24px;margin-bottom:5px;filter:grayscale(0.3)}
-.room-item .name{font-size:11px;color:#aaa;font-weight:600;letter-spacing:0.5px}
-.room-item .desc{font-size:10px;color:#555;margin-top:2px}
+/* STATUS */
+.srow{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #1a0028;font-size:12px}
+.srow:last-child{border:none}
+.sk{color:#555}
+.sv{color:#ccc;font-weight:600;display:flex;align-items:center;gap:6px}
+.dot{width:6px;height:6px;border-radius:50%}
+.dg{background:#2d6a4f;box-shadow:0 0 6px #2d6a4f}
+.dy{background:#6b4c11;box-shadow:0 0 6px #6b4c11}
+.dr{background:#6b1111;box-shadow:0 0 6px #6b1111}
 
-/* СТАТУС */
-.status-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(80,0,120,0.1);font-size:12px}
-.status-row:last-child{border-bottom:none}
-.status-label{color:#555}
-.status-value{color:#999;font-weight:600}
-.status-dot{width:6px;height:6px;border-radius:50%;display:inline-block;margin-right:5px}
-.dot-green{background:#336644;box-shadow:0 0 4px #336644}
-.dot-yellow{background:#665533;box-shadow:0 0 4px #665533}
-.dot-red{background:#663333;box-shadow:0 0 4px #663333}
+/* WINDOW VIZ */
+.wviz{background:#000;border:2px solid #1a0033;border-radius:8px;height:100px;overflow:hidden;position:relative;margin:10px 0}
+.wsky{width:100%;height:100%;background:linear-gradient(180deg,#000005 0%,#050010 100%);position:relative}
+.wstar{position:absolute;width:2px;height:2px;background:#fff;border-radius:50%;opacity:.5}
+.wbld{position:absolute;bottom:0;background:#080810}
+.wbld::after{content:'';position:absolute;top:15%;left:25%;width:20%;height:12%;background:rgba(255,180,30,.15)}
+.wrain{position:absolute;inset:0;background:repeating-linear-gradient(175deg,transparent,transparent 6px,rgba(80,100,160,.04) 6px,rgba(80,100,160,.04) 7px)}
 
-/* СЕКЦИЯ ЗАГОЛОВОК */
-.section-title{font-size:13px;font-weight:700;color:#888;margin-bottom:12px;display:flex;align-items:center;gap:8px;letter-spacing:1px;text-transform:uppercase}
-.section-title::after{content:'';flex:1;height:1px;background:rgba(80,0,120,0.2)}
+/* LIGHT VIZ */
+.lviz{display:flex;gap:8px;margin:10px 0}
+.ls{flex:1;background:#080010;border:1px solid #1a0028;border-radius:10px;padding:10px;text-align:center}
+.ls-icon{font-size:20px;margin-bottom:4px}
+.ls-name{font-size:10px;color:#555;line-height:1.3}
+.ls-glow{height:20px;border-radius:50%;margin-top:6px}
 
-/* МОДАЛЬНОЕ ОКНО */
-.modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:1000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
-.modal-overlay.show{display:flex}
-.modal{background:rgba(8,3,18,0.98);border:1px solid rgba(100,0,150,0.4);border-radius:8px;padding:24px;width:280px;position:relative}
-.modal h3{font-size:13px;color:#999;margin-bottom:4px;letter-spacing:1px;text-transform:uppercase}
-.modal p{font-size:11px;color:#444;margin-bottom:16px}
-.modal-field{margin-bottom:10px}
-.modal-field label{display:block;font-size:10px;color:#555;margin-bottom:4px;letter-spacing:1px;text-transform:uppercase}
-.modal-field input{width:100%;background:rgba(20,5,35,0.9);border:1px solid rgba(80,0,120,0.3);border-radius:4px;padding:8px 10px;color:#bbb;font-size:12px;outline:none;transition:border-color 0.2s}
-.modal-field input:focus{border-color:rgba(150,0,200,0.6)}
-.modal-btn{width:100%;padding:9px;background:rgba(80,0,120,0.3);border:1px solid rgba(100,0,150,0.4);border-radius:4px;color:#bb88ff;font-size:12px;cursor:pointer;margin-top:6px;letter-spacing:1px;transition:all 0.2s}
-.modal-btn:hover{background:rgba(100,0,150,0.4)}
-.modal-error{font-size:11px;color:#aa3333;margin-top:6px;display:none;text-align:center}
-.modal-close{position:absolute;top:10px;right:12px;background:none;border:none;color:#444;font-size:16px;cursor:pointer}
-.modal-close:hover{color:#888}
-
-/* ТЕРМИНАЛ */
-.terminal{background:rgba(2,5,8,0.9);border:1px solid rgba(80,0,120,0.2);border-radius:6px;padding:10px;font-family:'Courier New',monospace;font-size:11px;margin-bottom:10px}
-.terminal .prompt{color:#336644}
-.terminal .cmd{color:#888}
-.terminal .out{color:#444}
-
-/* СХЕМА КОМНАТЫ */
-.room-map{position:relative;width:100%;height:200px;background:rgba(5,0,12,0.9);border:1px solid rgba(80,0,120,0.3);border-radius:6px;margin-bottom:10px;overflow:hidden}
-.room-wall{position:absolute;background:rgba(80,0,120,0.15)}
-.room-wall-top{top:0;left:0;right:0;height:3px;background:rgba(100,0,150,0.4)}
-.room-wall-left{top:0;left:0;bottom:0;width:3px;background:rgba(100,0,150,0.4)}
-.room-wall-right{top:0;right:0;bottom:0;width:3px;background:rgba(100,0,150,0.4)}
-.room-wall-bottom{bottom:0;left:0;right:0;height:3px;background:rgba(100,0,150,0.4)}
-.robj{position:absolute;background:rgba(30,0,50,0.7);border:1px solid rgba(80,0,120,0.3);border-radius:4px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:default;transition:all 0.2s}
-.robj span{font-size:16px;line-height:1}
-.robj small{font-size:8px;color:#664488;margin-top:2px;text-align:center;line-height:1.2}
-.robj-active{border-color:rgba(150,0,200,0.6);background:rgba(50,0,80,0.7);box-shadow:0 0 8px rgba(100,0,150,0.3)}
-.rlight{position:absolute;font-size:10px;opacity:0.6;animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:0.4}50%{opacity:0.8}}
-.map-legend{display:flex;gap:12px;flex-wrap:wrap;margin-top:6px}
-.legend-item{display:flex;align-items:center;gap:5px;font-size:10px;color:#555}
-.legend-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0}
-
-/* ВИЗУАЛ СТОЛА */
-.obj-visual{display:flex;gap:16px;align-items:flex-end;padding:10px 0;justify-content:center}
-.obj-screen{display:flex;flex-direction:column;align-items:center}
-.obj-screen-inner{width:80px;height:55px;background:#000a14;border:2px solid #001a33;border-radius:3px;padding:6px;box-shadow:0 0 12px rgba(0,80,150,0.4)}
-.obj-screen-stand{width:20px;height:8px;background:#111;border-radius:0 0 3px 3px;margin-top:0}
-.obj-laptop{display:flex;flex-direction:column;align-items:center}
-.obj-laptop-screen{width:60px;height:40px;background:#050010;border:2px solid #1a0033;border-radius:3px 3px 0 0;padding:4px;box-shadow:0 0 10px rgba(80,0,120,0.4)}
-.obj-laptop-base{width:65px;height:6px;background:#111;border-radius:0 0 3px 3px}
-kbd{background:rgba(40,0,60,0.5);border:1px solid rgba(100,0,150,0.4);border-radius:3px;padding:1px 5px;font-size:10px;color:#9944cc;font-family:monospace}
-
-/* ОКНО */
-.window-visual{margin:8px 0}
-.window-frame{width:100%;height:110px;border:3px solid #1a1a1a;border-radius:4px;overflow:hidden;position:relative}
-.window-sky{width:100%;height:100%;background:linear-gradient(180deg,#000005,#050010);position:relative;overflow:hidden}
-.w-star{position:absolute;width:2px;height:2px;background:#fff;border-radius:50%;opacity:0.6}
-.w-building{position:absolute;bottom:0;background:#0a0a0f;border-top:1px solid #1a1a2a}
-.w-building::after{content:'';position:absolute;top:20%;left:20%;width:15%;height:10%;background:rgba(255,200,50,0.3);box-shadow:0 0 4px rgba(255,200,50,0.2)}
-.w-rain{position:absolute;top:0;left:0;right:0;bottom:0;background:repeating-linear-gradient(170deg,transparent,transparent 8px,rgba(100,120,180,0.04) 8px,rgba(100,120,180,0.04) 9px)}
-
-/* ОСВЕЩЕНИЕ */
-.lighting-visual{display:flex;gap:10px;justify-content:space-around;padding:10px 0}
-.light-source{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;position:relative}
-.light-bulb{font-size:22px;filter:drop-shadow(0 0 6px currentColor)}
-.light-label{font-size:10px;color:#555;text-align:center;line-height:1.4}
-.light-beam{width:60px;height:30px;border-radius:50%;margin-top:4px}
-
-/* ПАЛИТРА */
-.palette{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:4px}
-.pal-item{display:flex;flex-direction:column;align-items:center;gap:4px}
-.pal-color{width:100%;height:32px;border-radius:4px;border:1px solid rgba(80,0,120,0.2)}
-.pal-name{font-size:9px;color:#555;text-align:center}
-.pal-hex{font-size:9px;color:#440066;font-family:monospace}
+/* MODAL */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:999;display:none;align-items:center;justify-content:center;backdrop-filter:blur(8px)}
+.overlay.on{display:flex}
+.modal{background:#0d0018;border:1px solid #2a0044;border-radius:16px;padding:24px;width:290px}
+.modal h3{font-size:15px;font-weight:700;color:#fff;margin-bottom:4px}
+.modal p{font-size:12px;color:#555;margin-bottom:18px}
+.field{margin-bottom:12px}
+.field label{display:block;font-size:10px;color:#4400aa;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:5px}
+.field input{width:100%;background:#080010;border:1px solid #2a0044;border-radius:8px;padding:10px 12px;color:#ccc;font-size:13px;outline:none}
+.field input:focus{border-color:#9933ff}
+.mbtn{width:100%;padding:11px;background:linear-gradient(135deg,#6600cc,#9933ff);border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;margin-top:4px;letter-spacing:0.5px}
+.merr{font-size:11px;color:#aa2222;text-align:center;margin-top:8px;display:none}
+.mclose{float:right;background:none;border:none;color:#333;font-size:18px;cursor:pointer;margin-top:-4px}
 </style>
 </head>
 <body>
-<div id="space"><canvas id="c"></canvas></div>
+<canvas id="c"></canvas>
 <div class="app">
 
-<div class="header">
-  <div class="header-icon">🐉</div>
-  <h1>Cyber Security Simulator</h1>
-  <p>Project Documentation</p>
+<div class="hdr">
+  <span class="hdr-dragon">🐉</span>
+  <div class="hdr-title">Cyber Security Simulator</div>
+  <div class="hdr-sub">Project Documentation</div>
 </div>
 
-<div class="nav">
-  <button class="nav-btn active" onclick="showSection('overview',this)">Обзор</button>
-  <button class="nav-btn active" onclick="showSection('room',this)">Комната</button>
-  <button class="nav-btn locked" onclick="tryLocked('gameplay',this)">🔒 Геймплей</button>
-  <button class="nav-btn locked" onclick="tryLocked('terminal',this)">🔒 Терминал</button>
-  <button class="nav-btn locked" onclick="tryLocked('quests',this)">🔒 Квесты</button>
-  <button class="nav-btn active" onclick="showSection('tech',this)">Технологии</button>
+<div class="tabs">
+  <button class="tab on" onclick="go('overview',this)">Обзор</button>
+  <button class="tab" onclick="go('room',this)">Комната</button>
+  <button class="tab lock" onclick="auth('gameplay',this)">🔒 Геймплей</button>
+  <button class="tab lock" onclick="auth('terminal',this)">🔒 Терминал</button>
+  <button class="tab lock" onclick="auth('quests',this)">🔒 Квесты</button>
+  <button class="tab" onclick="go('tech',this)">Технологии</button>
 </div>
 
-<div class="content">
+<div class="pages">
 
 <!-- ОБЗОР -->
-<div class="section active" id="overview">
-  <div class="section-title">Общий обзор</div>
-  <div class="card" style="--accent:#6600aa">
-    <div class="card-title"><span class="icon">🎯</span> Концепция</div>
-    <p>Игрок получает угрожающее сообщение от незнакомца, который утверждает что нашёл его IP. Используя OSINT-техники нужно вычислить незнакомца первым, собрать доказательства и подать анонимный донос в полицию.</p>
+<div class="page on" id="overview">
+  <div class="slabel">О проекте</div>
+  <div class="hero">
+    <div class="hero-title">Что это такое</div>
+    <div class="hero-text">Игра от первого лица. Ты в комнате, за ноутбуком. Незнакомец угрожает — нужно вычислить его раньше чем он тебя. OSINT, терминал, расследование.</div>
   </div>
-  <div class="card" style="--accent:#440066">
-    <div class="card-title"><span class="icon">🕹️</span> Жанр и стиль</div>
-    <ul class="list">
-      <li>FPS от первого лица — передвижение по комнате</li>
-      <li>Симулятор хакера с реальными OSINT техниками</li>
-      <li>Атмосфера Kali Linux — тёмный киберпанк</li>
-      <li>Нарративный детектив с расследованием</li>
-    </ul>
+  <div class="grid2">
+    <div class="gcard"><div class="gcard-icon">🎮</div><div class="gcard-title">Жанр</div><div class="gcard-text">FPS + симулятор хакера</div></div>
+    <div class="gcard"><div class="gcard-icon">🐉</div><div class="gcard-title">ОС</div><div class="gcard-text">Kali Linux интерфейс</div></div>
+    <div class="gcard"><div class="gcard-icon">🔍</div><div class="gcard-title">Механика</div><div class="gcard-text">OSINT расследование</div></div>
+    <div class="gcard"><div class="gcard-icon">🌃</div><div class="gcard-title">Атмосфера</div><div class="gcard-text">Ночь, дождь, киберпанк</div></div>
   </div>
-  <div class="card" style="--accent:#330055">
-    <div class="card-title"><span class="icon">📊</span> Статус</div>
-    <div class="status-row"><span class="status-label">Движок</span><span class="status-value"><span class="status-dot dot-green"></span>Godot 4</span></div>
-    <div class="status-row"><span class="status-label">Терминал Kali</span><span class="status-value"><span class="status-dot dot-yellow"></span>В разработке</span></div>
-    <div class="status-row"><span class="status-label">Комната / FPS</span><span class="status-value"><span class="status-dot dot-red"></span>Запланировано</span></div>
-    <div class="status-row"><span class="status-label">Квесты</span><span class="status-value"><span class="status-dot dot-red"></span>Запланировано</span></div>
+  <div class="slabel">Статус</div>
+  <div class="lcard">
+    <div class="srow"><span class="sk">Движок</span><span class="sv"><span class="dot dg"></span>Godot 4.6</span></div>
+    <div class="srow"><span class="sk">Терминал</span><span class="sv"><span class="dot dy"></span>В разработке</span></div>
+    <div class="srow"><span class="sk">Комната</span><span class="sv"><span class="dot dr"></span>Запланировано</span></div>
+    <div class="srow"><span class="sk">Квесты</span><span class="sv"><span class="dot dr"></span>Запланировано</span></div>
   </div>
 </div>
 
 <!-- КОМНАТА -->
-<div class="section" id="room">
-  <div class="section-title">Дизайн комнаты</div>
-
-  <!-- СХЕМА КОМНАТЫ -->
-  <div class="card" style="--accent:#6600aa">
-    <div class="card-title"><span class="icon">🗺️</span> Схема планировки</div>
-    <div class="room-map">
-      <div class="room-wall room-wall-top"></div>
-      <div class="room-wall room-wall-left"></div>
-      <div class="room-wall room-wall-right"></div>
-      <div class="room-wall room-wall-bottom"></div>
-      <!-- Объекты -->
-      <div class="robj" style="left:8%;top:8%;width:30%;height:18%" data-label="🛏️ Кровать">
-        <span>🛏️</span><small>Кровать</small>
-      </div>
-      <div class="robj robj-active" style="left:55%;top:8%;width:38%;height:22%" data-label="🖥️ Стол + ноутбук [E]">
-        <span>🖥️</span><small>Стол + ноутбук</small>
-      </div>
-      <div class="robj" style="left:8%;top:30%;width:14%;height:35%" data-label="📚 Полки с книгами">
-        <span>📚</span><small>Полки</small>
-      </div>
-      <div class="robj" style="left:55%;top:34%;width:18%;height:14%" data-label="🪑 Кресло">
-        <span>🪑</span><small>Кресло</small>
-      </div>
-      <div class="robj" style="left:76%;top:34%;width:18%;height:14%" data-label="📱 Телефон на столе">
-        <span>📱</span><small>Телефон</small>
-      </div>
-      <div class="robj" style="left:25%;top:8%;width:12%;height:10%" data-label="🪟 Окно — ночной город">
-        <span>🪟</span><small>Окно</small>
-      </div>
-      <div class="robj" style="left:8%;top:70%;width:85%;height:22%" data-label="🚶 Зона передвижения игрока">
-        <span style="font-size:10px;color:#6600aa;letter-spacing:1px">ЗОНА ИГРОКА</span>
-      </div>
-      <!-- Источники света -->
-      <div class="rlight" style="left:57%;top:10%">💜</div>
-      <div class="rlight" style="left:72%;top:10%">�</div>
-    </div>
-    <div class="map-legend">
-      <div class="legend-item"><span class="legend-dot" style="background:#6600aa"></span>Интерактивный объект</div>
-      <div class="legend-item"><span class="legend-dot" style="background:#330033"></span>Декорация</div>
-      <div class="legend-item"><span class="legend-dot" style="background:#220044;border:1px solid #6600aa"></span>Зона игрока</div>
-    </div>
-  </div>
-
-  <!-- ОБЪЕКТЫ ПОДРОБНО -->
-  <div class="card" style="--accent:#6600aa">
-    <div class="card-title"><span class="icon">🖥️</span> Стол и рабочее место <span class="badge badge-purple" style="margin-left:auto;font-size:9px">ГЛАВНЫЙ ОБЪЕКТ</span></div>
-    <div class="obj-visual">
-      <div class="obj-screen">
-        <div class="obj-screen-inner">
-          <div style="color:#90ee90;font-size:9px;font-family:monospace">┌──(kali㉿kali)-[~]<br>└─$ <span style="color:#fff">█</span></div>
-        </div>
-        <div class="obj-screen-stand"></div>
-      </div>
-      <div class="obj-laptop">
-        <div class="obj-laptop-screen">
-          <div style="color:#6600aa;font-size:8px;text-align:center;padding-top:4px">� KALI</div>
-        </div>
-        <div class="obj-laptop-base"></div>
-      </div>
-    </div>
-    <ul class="list" style="margin-top:10px">
-      <li>Монитор + ноутбук на столе, оба светятся синим/зелёным</li>
-      <li>Клавиатура с RGB подсветкой (фиолетовый оттенок)</li>
-      <li>Телефон лежит рядом — на нём приходит угроза</li>
-      <li>Кружка с кофе, провода, USB-хаб — детали реализма</li>
-      <li>Нажать <kbd>E</kbd> рядом — открывается Kali OS на весь экран</li>
+<div class="page" id="room">
+  <div class="slabel">Кровать</div>
+  <div class="lcard">
+    <div class="lcard-head"><div class="lcard-icon">🛏️</div><div><div class="lcard-title">Кровать</div><div class="lcard-sub">Угол комнаты, у левой стены</div></div></div>
+    <ul>
+      <li>Односпальная, тёмное деревянное изголовье, высота ~60 см</li>
+      <li>Постельное бельё тёмно-серое, смятое — не заправлена</li>
+      <li>На подушке брошена чёрная худи</li>
+      <li>Под кроватью: пустые коробки из-под пиццы, скомканные пакеты, пыль</li>
+      <li>Рядом на полу: 3 пустые банки энергетиков Monster</li>
+      <li>На тумбочке: телефон экраном вниз, зарядка, смятый чек</li>
     </ul>
   </div>
 
-  <div class="card" style="--accent:#440066">
-    <div class="card-title"><span class="icon">🪟</span> Окно — ночной город</div>
-    <div class="window-visual">
-      <div class="window-frame">
-        <div class="window-sky">
-          <div class="w-star" style="left:15%;top:20%"></div>
-          <div class="w-star" style="left:40%;top:10%"></div>
-          <div class="w-star" style="left:70%;top:25%"></div>
-          <div class="w-star" style="left:85%;top:15%"></div>
-          <div class="w-building" style="left:5%;height:55%;width:18%"></div>
-          <div class="w-building" style="left:25%;height:70%;width:14%"></div>
-          <div class="w-building" style="left:42%;height:45%;width:20%"></div>
-          <div class="w-building" style="left:65%;height:65%;width:16%"></div>
-          <div class="w-building" style="left:83%;height:50%;width:15%"></div>
-          <div class="w-rain"></div>
-        </div>
-      </div>
-    </div>
-    <ul class="list" style="margin-top:10px">
-      <li>Ночной город с огнями зданий — видно через окно</li>
-      <li>Идёт дождь — капли на стекле, звук дождя в фоне</li>
-      <li>Отражение монитора на стекле</li>
-      <li>Окно не интерактивно — только атмосфера</li>
+  <div class="slabel">Рабочий стол</div>
+  <div class="lcard">
+    <div class="lcard-head"><div class="lcard-icon">🖥️</div><div><div class="lcard-title">Стол и оборудование</div><div class="lcard-sub">Правая стена, основная зона</div></div></div>
+    <ul>
+      <li>Широкий стол ~160×70 см, тёмное дерево, царапины и потёртости</li>
+      <li>Монитор 27" IPS — на нём открыт терминал Kali Linux, синеватое свечение</li>
+      <li>Ноутбук слева от монитора, крышка открыта, тоже включён</li>
+      <li>Механическая клавиатура TKL, фиолетовая RGB подсветка</li>
+      <li>Мышь с фиолетовым свечением снизу, коврик весь стол</li>
+      <li>USB-хаб с 4 портами, торчат 2 флешки и кабель</li>
+      <li>Кружка с остывшим кофе, кольцо от кружки на столе</li>
+      <li>Стикеры с заметками приклеены на рамку монитора</li>
+      <li>Провода не убраны — лежат как попало по всему столу</li>
+      <li>Маленький вентилятор в углу стола, крутится</li>
+      <li>Телефон лежит рядом с клавиатурой экраном вниз</li>
     </ul>
   </div>
 
-  <div class="card" style="--accent:#330055">
-    <div class="card-title"><span class="icon">💡</span> Освещение</div>
-    <div class="lighting-visual">
-      <div class="light-source" style="--lc:#1a0033">
-        <div class="light-bulb">💜</div>
-        <div class="light-label">LED лента<br><small>под столом</small></div>
-        <div class="light-beam" style="background:radial-gradient(ellipse,rgba(80,0,120,0.3),transparent)"></div>
-      </div>
-      <div class="light-source" style="--lc:#000a1a">
-        <div class="light-bulb">🔵</div>
-        <div class="light-label">Монитор<br><small>синий свет</small></div>
-        <div class="light-beam" style="background:radial-gradient(ellipse,rgba(0,50,120,0.2),transparent)"></div>
-      </div>
-      <div class="light-source" style="--lc:#0a0005">
-        <div class="light-bulb">🌧️</div>
-        <div class="light-label">Окно<br><small>свет города</small></div>
-        <div class="light-beam" style="background:radial-gradient(ellipse,rgba(20,10,40,0.2),transparent)"></div>
-      </div>
-    </div>
-    <ul class="list" style="margin-top:10px">
-      <li>Основной свет — фиолетовая LED лента под столом и полками</li>
-      <li>Монитор даёт синеватое свечение на лицо и стены</li>
-      <li>Через окно — слабый свет ночного города</li>
-      <li>Никакого верхнего света — только точечные источники</li>
-      <li>Тени резкие, контрастные — атмосфера мрака</li>
+  <div class="slabel">Кресло</div>
+  <div class="lcard">
+    <div class="lcard-head"><div class="lcard-icon">🪑</div><div><div class="lcard-title">Геймерское кресло</div><div class="lcard-sub">Перед столом</div></div></div>
+    <ul>
+      <li>Чёрное с фиолетовыми вставками по бокам</li>
+      <li>Подлокотники потёрты — видно что сидят постоянно</li>
+      <li>На спинке висит серая толстовка</li>
+      <li>Высота отрегулирована под стол, немного откинуто назад</li>
+      <li>На сиденье — смятая упаковка от чипсов</li>
     </ul>
   </div>
 
-  <div class="card" style="--accent:#220044">
-    <div class="card-title"><span class="icon">🎨</span> Цветовая палитра</div>
-    <div class="palette">
-      <div class="pal-item"><div class="pal-color" style="background:#0a0010"></div><div class="pal-name">Стены / пол</div><div class="pal-hex">#0a0010</div></div>
-      <div class="pal-item"><div class="pal-color" style="background:#1a0033"></div><div class="pal-name">LED подсветка</div><div class="pal-hex">#1a0033</div></div>
-      <div class="pal-item"><div class="pal-color" style="background:#001a33"></div><div class="pal-name">Монитор</div><div class="pal-hex">#001a33</div></div>
-      <div class="pal-item"><div class="pal-color" style="background:#0d0d0d"></div><div class="pal-name">Мебель</div><div class="pal-hex">#0d0d0d</div></div>
-      <div class="pal-item"><div class="pal-color" style="background:#6600aa"></div><div class="pal-name">Акцент</div><div class="pal-hex">#6600aa</div></div>
-      <div class="pal-item"><div class="pal-color" style="background:#90ee90"></div><div class="pal-name">Терминал</div><div class="pal-hex">#90ee90</div></div>
-    </div>
-  </div>
-
-  <div class="card" style="--accent:#330055">
-    <div class="card-title"><span class="icon">🔊</span> Звуковое оформление</div>
-    <ul class="list">
-      <li>Фоновый гул вентилятора ПК — постоянно</li>
-      <li>Звук дождя за окном — постоянно</li>
-      <li>Клавиатура — при печати в терминале</li>
-      <li>Уведомление телефона — в начале игры</li>
-      <li>Эмбиент — тёмная электронная музыка тихо</li>
+  <div class="slabel">Полки</div>
+  <div class="lcard">
+    <div class="lcard-head"><div class="lcard-icon">📚</div><div><div class="lcard-title">Настенные полки</div><div class="lcard-sub">Левая стена, 3 яруса</div></div></div>
+    <ul>
+      <li>3 полки из тёмного дерева, прикручены к стене</li>
+      <li>Верхняя: книги — "The Web Application Hacker's Handbook", "Hacking: The Art of Exploitation", "Linux Command Line", ещё 4 без видимых названий</li>
+      <li>Средняя: старый роутер TP-Link (мигает синим), коробка с флешками и SD-картами, фигурка черепа</li>
+      <li>Нижняя: сетевой фильтр, клубок проводов, пустая коробка от SSD</li>
+      <li>Пыль на верхней полке — давно не убирали</li>
+      <li>Между книгами торчит закладка — листок с IP-адресами</li>
     </ul>
   </div>
 
+  <div class="slabel">Окно</div>
+  <div class="lcard">
+    <div class="lcard-head"><div class="lcard-icon">🪟</div><div><div class="lcard-title">Окно</div><div class="lcard-sub">Фронтальная стена</div></div></div>
+    <div class="wviz">
+      <div class="wsky">
+        <div class="wstar" style="left:8%;top:18%"></div>
+        <div class="wstar" style="left:25%;top:9%"></div>
+        <div class="wstar" style="left:48%;top:22%"></div>
+        <div class="wstar" style="left:68%;top:11%"></div>
+        <div class="wstar" style="left:88%;top:19%"></div>
+        <div class="wbld" style="left:2%;height:58%;width:15%"></div>
+        <div class="wbld" style="left:19%;height:72%;width:11%"></div>
+        <div class="wbld" style="left:33%;height:48%;width:17%"></div>
+        <div class="wbld" style="left:53%;height:65%;width:13%"></div>
+        <div class="wbld" style="left:69%;height:52%;width:14%"></div>
+        <div class="wbld" style="left:86%;height:70%;width:13%"></div>
+        <div class="wrain"></div>
+      </div>
+    </div>
+    <ul>
+      <li>Одностворчатое, деревянная рама, облупившаяся белая краска</li>
+      <li>Жалюзи подняты полностью — виден ночной город</li>
+      <li>На стекле капли дождя, огни зданий размыты</li>
+      <li>Подоконник: пустая банка энергетика, наушники свёрнуты, пыль</li>
+      <li>Слабый оранжевый свет фонарей с улицы падает на пол</li>
+      <li>Слышен дождь и редкие звуки города</li>
+    </ul>
+  </div>
+
+  <div class="slabel">Стены и пол</div>
+  <div class="lcard">
+    <div class="lcard-head"><div class="lcard-icon">🧱</div><div><div class="lcard-title">Стены и пол</div><div class="lcard-sub">Общая отделка</div></div></div>
+    <ul>
+      <li>Стены тёмно-серые, матовые, без обоев — бетон или штукатурка</li>
+      <li>Над столом: постер Anonymous (маска Guy Fawkes), А2 формат</li>
+      <li>Слева от монитора: распечатанная схема сети, прикреплена скотчем</li>
+      <li>Несколько стикеров на стене — заметки, IP, команды</li>
+      <li>Пол — тёмный ламинат, местами потёртый</li>
+      <li>Под столом коврик, за пределами — голый пол</li>
+      <li>В дальнем углу: свалка из одежды, пакетов, коробок</li>
+    </ul>
+  </div>
+
+  <div class="slabel">Освещение</div>
+  <div class="lcard">
+    <div class="lcard-head"><div class="lcard-icon">💡</div><div><div class="lcard-title">Источники света</div><div class="lcard-sub">Только точечные, верхнего нет</div></div></div>
+    <div class="lviz">
+      <div class="ls"><div class="ls-icon">💜</div><div class="ls-name">LED лента<br>под столом</div><div class="ls-glow" style="background:radial-gradient(ellipse,#3a006688,transparent)"></div></div>
+      <div class="ls"><div class="ls-icon">🔵</div><div class="ls-name">Монитор<br>синий</div><div class="ls-glow" style="background:radial-gradient(ellipse,#00204488,transparent)"></div></div>
+      <div class="ls"><div class="ls-icon">🟠</div><div class="ls-name">Фонарь<br>с улицы</div><div class="ls-glow" style="background:radial-gradient(ellipse,#2a150088,transparent)"></div></div>
+      <div class="ls"><div class="ls-icon">🔵</div><div class="ls-name">Роутер<br>мигает</div><div class="ls-glow" style="background:radial-gradient(ellipse,#00103388,transparent)"></div></div>
+    </div>
+    <ul>
+      <li>Верхнего света нет — лампочка перегорела, не меняли</li>
+      <li>Фиолетовая LED лента под столом — основной источник, ~3000K фиолетовый</li>
+      <li>Монитор 27" даёт синеватое свечение на лицо, стену и потолок</li>
+      <li>Роутер на полке мигает синим каждые ~2 секунды</li>
+      <li>Через окно — слабый оранжевый свет уличных фонарей</li>
+      <li>Тени резкие и контрастные, большая часть комнаты в темноте</li>
+    </ul>
+  </div>
+
+  <div class="slabel">Цветовая палитра</div>
+  <div class="lcard">
+    <div class="pal" style="margin-bottom:20px">
+      <div class="pc" style="background:#080810"><span>#080810</span></div>
+      <div class="pc" style="background:#0d0d0d"><span>#0d0d0d</span></div>
+      <div class="pc" style="background:#1a0033"><span>#1a0033</span></div>
+      <div class="pc" style="background:#001020"><span>#001020</span></div>
+      <div class="pc" style="background:#6600aa"><span>#6600aa</span></div>
+      <div class="pc" style="background:#1a0f00"><span>#1a0f00</span></div>
+    </div>
+  </div>
+
+  <div class="slabel">Звуки</div>
+  <div class="lcard">
+    <div class="lcard-head"><div class="lcard-icon">🔊</div><div><div class="lcard-title">Звуковое оформление</div><div class="lcard-sub">Постоянный фон</div></div></div>
+    <ul>
+      <li>Гул вентилятора ПК — тихий постоянный фон, ~40 дБ</li>
+      <li>Дождь за окном — постоянно, средней интенсивности</li>
+      <li>Редкие звуки города — машины, далёкие голоса, раз в 30-60 сек</li>
+      <li>Роутер — тихий щелчок при мигании каждые 2 сек</li>
+      <li>Тёмный эмбиент — едва слышная электронная музыка</li>
+    </ul>
+  </div>
 </div>
 
-<!-- ГЕЙМПЛЕЙ (locked) -->
-<div class="section" id="gameplay">
-  <div class="section-title">Геймплей</div>
-  <div class="card" style="--accent:#6600aa"><div class="card-title">🔒 Раздел закрыт</div><p>Требуется авторизация.</p></div>
-</div>
-
-<!-- ТЕРМИНАЛ (locked) -->
-<div class="section" id="terminal">
-  <div class="section-title">Терминал</div>
-  <div class="card" style="--accent:#6600aa"><div class="card-title">🔒 Раздел закрыт</div><p>Требуется авторизация.</p></div>
-</div>
-
-<!-- КВЕСТЫ (locked) -->
-<div class="section" id="quests">
-  <div class="section-title">Квесты</div>
-  <div class="card" style="--accent:#6600aa"><div class="card-title">🔒 Раздел закрыт</div><p>Требуется авторизация.</p></div>
-</div>
+<!-- LOCKED PAGES -->
+<div class="page" id="gameplay"><div class="slabel">Доступ закрыт</div></div>
+<div class="page" id="terminal"><div class="slabel">Доступ закрыт</div></div>
+<div class="page" id="quests"><div class="slabel">Доступ закрыт</div></div>
 
 <!-- ТЕХНОЛОГИИ -->
-<div class="section" id="tech">
-  <div class="section-title">Технологии</div>
-  <div class="card" style="--accent:#6600aa">
-    <div class="card-title"><span class="icon">🔧</span> Стек разработки</div>
-    <div class="status-row"><span class="status-label">Движок</span><span class="status-value">Godot 4.6.2 stable</span></div>
-    <div class="status-row"><span class="status-label">Язык скриптов</span><span class="status-value">GDScript</span></div>
-    <div class="status-row"><span class="status-label">Рендер</span><span class="status-value">Forward+ (D3D12)</span></div>
-    <div class="status-row"><span class="status-label">Платформа</span><span class="status-value">Windows PC</span></div>
-    <div class="status-row"><span class="status-label">UI система</span><span class="status-value">Godot Control nodes</span></div>
+<div class="page" id="tech">
+  <div class="slabel">Стек</div>
+  <div class="lcard">
+    <div class="srow"><span class="sk">Движок</span><span class="sv">Godot 4.6.2 stable</span></div>
+    <div class="srow"><span class="sk">Язык</span><span class="sv">GDScript</span></div>
+    <div class="srow"><span class="sk">Рендер</span><span class="sv">Forward+ D3D12</span></div>
+    <div class="srow"><span class="sk">Платформа</span><span class="sv">Windows PC</span></div>
+    <div class="srow"><span class="sk">UI</span><span class="sv">Godot Control nodes</span></div>
   </div>
-  <div class="card" style="--accent:#440066">
-    <div class="card-title"><span class="icon">📁</span> Структура проекта</div>
-    <ul class="list">
+  <div class="slabel">Структура</div>
+  <div class="lcard">
+    <ul>
       <li>scenes/terminal/ — терминал Kali Linux</li>
-      <li>scenes/room/ — 3D комната игрока</li>
+      <li>scenes/room/ — 3D комната</li>
       <li>scenes/ui/ — интерфейс Kali OS</li>
       <li>scenes/cutscenes/ — катсцены</li>
       <li>scripts/player/ — FPS контроллер</li>
@@ -389,220 +322,114 @@ kbd{background:rgba(40,0,60,0.5);border:1px solid rgba(100,0,150,0.4);border-rad
       <li>assets/sounds/ — звуки и музыка</li>
     </ul>
   </div>
-  <div class="card" style="--accent:#330055">
-    <div class="card-title"><span class="icon">🧩</span> Ключевые системы</div>
-    <ul class="list">
+  <div class="slabel">Системы</div>
+  <div class="lcard">
+    <ul>
       <li>FPS контроллер с коллизиями</li>
-      <li>Система взаимодействия (Raycast + E)</li>
+      <li>Raycast взаимодействие с объектами</li>
       <li>Симулятор терминала Kali Linux</li>
       <li>Виртуальная файловая система</li>
       <li>Система квестов с триггерами</li>
-      <li>Менеджер катсцен (камера + диалоги)</li>
-      <li>Симулятор браузера для OSINT</li>
-      <li>Система досье / сбора улик</li>
+      <li>Менеджер катсцен</li>
+      <li>Симулятор браузера</li>
+      <li>Система досье</li>
     </ul>
-  </div>
-  <div class="card" style="--accent:#220044">
-    <div class="card-title"><span class="icon">📦</span> Зависимости</div>
-    <div style="margin-top:4px">
-      <span class="badge badge-purple">Godot 4.6</span>
-      <span class="badge badge-green">GDScript</span>
-      <span class="badge badge-dim">No external libs</span>
-      <span class="badge badge-purple">Built-in physics</span>
-      <span class="badge badge-green">Built-in audio</span>
-      <span class="badge badge-dim">Custom shaders</span>
-    </div>
   </div>
 </div>
 
-</div><!-- content -->
+</div><!-- pages -->
 </div><!-- app -->
 
-<!-- МОДАЛЬНОЕ ОКНО -->
-<div class="modal-overlay" id="authModal">
+<!-- MODAL -->
+<div class="overlay" id="modal">
   <div class="modal">
-    <button class="modal-close" onclick="closeModal()">✕</button>
-    <h3>🔒 Доступ закрыт</h3>
-    <p>Введите учётные данные разработчика</p>
-    <div class="modal-field">
-      <label>Пользователь</label>
-      <input type="text" id="authUser" placeholder="username" autocomplete="off">
-    </div>
-    <div class="modal-field">
-      <label>Пароль</label>
-      <input type="password" id="authPass" placeholder="password">
-    </div>
-    <button class="modal-btn" onclick="checkAuth()">ВОЙТИ</button>
-    <div class="modal-error" id="authError">Неверные учётные данные</div>
+    <button class="mclose" onclick="closeM()">✕</button>
+    <h3>🔒 Закрытый раздел</h3>
+    <p>Введите данные разработчика</p>
+    <div class="field"><label>Пользователь</label><input id="mu" type="text" autocomplete="off" placeholder="username"></div>
+    <div class="field"><label>Пароль</label><input id="mp" type="password" placeholder="password"></div>
+    <button class="mbtn" onclick="check()">Войти</button>
+    <div class="merr" id="merr">Неверные данные</div>
   </div>
 </div>
 
 <script>
-const tg = window.Telegram.WebApp;
-tg.ready();
-tg.expand();
+const tg=window.Telegram.WebApp;tg.ready();tg.expand();
+let pend=null,pbtn=null,unl=false;
 
-let pendingSection = null;
-let pendingBtn = null;
-let unlocked = false;
-
-function showSection(id, btn) {
-  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(b => {
-    if (!b.classList.contains('locked')) b.classList.remove('active');
-  });
-  document.getElementById(id).classList.add('active');
-  if (btn) btn.classList.add('active');
+function go(id,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(t=>{if(!t.classList.contains('lock'))t.classList.remove('on')});
+  document.getElementById(id).classList.add('on');
+  if(btn)btn.classList.add('on');
   window.scrollTo({top:0,behavior:'smooth'});
 }
-
-function tryLocked(id, btn) {
-  if (unlocked) {
-    showSection(id, btn);
-    return;
-  }
-  pendingSection = id;
-  pendingBtn = btn;
-  document.getElementById('authUser').value = '';
-  document.getElementById('authPass').value = '';
-  document.getElementById('authError').style.display = 'none';
-  document.getElementById('authModal').classList.add('show');
-  setTimeout(() => document.getElementById('authUser').focus(), 100);
+function auth(id,btn){
+  if(unl){go(id,btn);return;}
+  pend=id;pbtn=btn;
+  document.getElementById('mu').value='';
+  document.getElementById('mp').value='';
+  document.getElementById('merr').style.display='none';
+  document.getElementById('modal').classList.add('on');
+  setTimeout(()=>document.getElementById('mu').focus(),100);
 }
-
-function closeModal() {
-  document.getElementById('authModal').classList.remove('show');
-}
-
-function checkAuth() {
-  const u = document.getElementById('authUser').value.trim();
-  const p = document.getElementById('authPass').value.trim();
-  if (u === 'dev' && p === 'devv4') {
-    unlocked = true;
-    closeModal();
-    if (pendingSection) {
-      showSection(pendingSection, pendingBtn);
-      if (pendingBtn) {
-        pendingBtn.classList.remove('locked');
-        pendingBtn.textContent = pendingBtn.textContent.replace('🔒 ', '');
-        pendingBtn.onclick = function() { showSection(pendingSection, this); };
-      }
+function closeM(){document.getElementById('modal').classList.remove('on');}
+function check(){
+  const u=document.getElementById('mu').value.trim();
+  const p=document.getElementById('mp').value.trim();
+  if(u==='dev'&&p==='devv4'){
+    unl=true;closeM();
+    if(pend){
+      go(pend,pbtn);
+      if(pbtn){pbtn.classList.remove('lock');pbtn.textContent=pbtn.textContent.replace('🔒 ','');pbtn.onclick=function(){go(pend,this);};}
     }
-  } else {
-    document.getElementById('authError').style.display = 'block';
-    document.getElementById('authPass').value = '';
+  }else{
+    document.getElementById('merr').style.display='block';
+    document.getElementById('mp').value='';
   }
 }
+document.getElementById('mp').addEventListener('keydown',e=>{if(e.key==='Enter')check();});
 
-document.getElementById('authPass').addEventListener('keydown', e => {
-  if (e.key === 'Enter') checkAuth();
-});
-
-// ===== КОСМОС =====
-const canvas = document.getElementById('c');
-const ctx = canvas.getContext('2d');
-
-function resize() {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-}
-resize();
-window.addEventListener('resize', resize);
-
-// Звёзды
-const stars = Array.from({length: 200}, () => ({
-  x: Math.random() * window.innerWidth,
-  y: Math.random() * window.innerHeight,
-  r: Math.random() * 1.2 + 0.2,
-  speed: Math.random() * 0.15 + 0.05,
-  opacity: Math.random() * 0.6 + 0.2
-}));
-
-// Планеты
-const planets = [
-  {x: 80, y: 120, r: 28, color: '#1a0033', ring: true, ringColor: '#330055', speed: 0.0003, angle: 0},
-  {x: window.innerWidth - 70, y: 200, r: 18, color: '#0a001a', ring: false, speed: 0.0005, angle: 1},
-  {x: window.innerWidth * 0.6, y: 80, r: 10, color: '#050010', ring: false, speed: 0.001, angle: 2},
+// SPACE
+const cv=document.getElementById('c');
+const cx=cv.getContext('2d');
+function rsz(){cv.width=window.innerWidth;cv.height=window.innerHeight;}
+rsz();window.addEventListener('resize',rsz);
+const ST=Array.from({length:180},()=>({x:Math.random()*window.innerWidth,y:Math.random()*window.innerHeight,r:Math.random()*1.1+0.2,s:Math.random()*0.12+0.04,o:Math.random()*0.5+0.15}));
+const PL=[
+  {x:70,y:100,r:32,ring:true,a:0,sp:0.0004},
+  {x:window.innerWidth-60,y:180,r:20,ring:false,a:1,sp:0.0006},
+  {x:window.innerWidth*0.55,y:60,r:11,ring:false,a:2,sp:0.001},
 ];
-
-function drawPlanet(p) {
-  ctx.save();
-  ctx.translate(p.x, p.y);
-
-  // Кольцо
-  if (p.ring) {
-    ctx.save();
-    ctx.rotate(p.angle * 0.3);
-    ctx.scale(1, 0.3);
-    ctx.beginPath();
-    ctx.arc(0, 0, p.r * 1.8, 0, Math.PI * 2);
-    ctx.strokeStyle = p.ringColor;
-    ctx.lineWidth = 4;
-    ctx.globalAlpha = 0.4;
-    ctx.stroke();
-    ctx.restore();
+function drawP(p){
+  cx.save();cx.translate(p.x,p.y);
+  if(p.ring){
+    cx.save();cx.rotate(p.a*0.25);cx.scale(1,0.28);
+    cx.beginPath();cx.arc(0,0,p.r*1.9,0,Math.PI*2);
+    cx.strokeStyle='rgba(80,0,120,0.35)';cx.lineWidth=5;cx.stroke();
+    cx.restore();
   }
-
-  // Планета
-  const grad = ctx.createRadialGradient(-p.r*0.3, -p.r*0.3, p.r*0.1, 0, 0, p.r);
-  grad.addColorStop(0, '#3a0066');
-  grad.addColorStop(0.5, p.color);
-  grad.addColorStop(1, '#000');
-  ctx.beginPath();
-  ctx.arc(0, 0, p.r, 0, Math.PI * 2);
-  ctx.fillStyle = grad;
-  ctx.globalAlpha = 0.85;
-  ctx.fill();
-
-  // Свечение
-  const glow = ctx.createRadialGradient(0, 0, p.r * 0.8, 0, 0, p.r * 2);
-  glow.addColorStop(0, 'rgba(80,0,120,0.15)');
-  glow.addColorStop(1, 'rgba(0,0,0,0)');
-  ctx.beginPath();
-  ctx.arc(0, 0, p.r * 2, 0, Math.PI * 2);
-  ctx.fillStyle = glow;
-  ctx.globalAlpha = 1;
-  ctx.fill();
-
-  ctx.restore();
+  const g=cx.createRadialGradient(-p.r*.3,-p.r*.3,p.r*.05,0,0,p.r);
+  g.addColorStop(0,'#2a0055');g.addColorStop(.6,'#0d0018');g.addColorStop(1,'#000');
+  cx.beginPath();cx.arc(0,0,p.r,0,Math.PI*2);cx.fillStyle=g;cx.globalAlpha=.8;cx.fill();
+  const gl=cx.createRadialGradient(0,0,p.r*.7,0,0,p.r*2.2);
+  gl.addColorStop(0,'rgba(60,0,100,0.12)');gl.addColorStop(1,'transparent');
+  cx.beginPath();cx.arc(0,0,p.r*2.2,0,Math.PI*2);cx.fillStyle=gl;cx.globalAlpha=1;cx.fill();
+  cx.restore();
 }
-
-function animate(t) {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  // Фон
-  const bg = ctx.createRadialGradient(canvas.width/2, canvas.height/2, 0, canvas.width/2, canvas.height/2, canvas.width);
-  bg.addColorStop(0, 'rgba(5,0,15,1)');
-  bg.addColorStop(1, 'rgba(0,0,0,1)');
-  ctx.fillStyle = bg;
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-  // Туманность
-  const neb = ctx.createRadialGradient(canvas.width*0.3, canvas.height*0.4, 0, canvas.width*0.3, canvas.height*0.4, canvas.width*0.5);
-  neb.addColorStop(0, 'rgba(40,0,60,0.08)');
-  neb.addColorStop(1, 'rgba(0,0,0,0)');
-  ctx.fillStyle = neb;
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-  // Звёзды
-  stars.forEach(s => {
-    s.y += s.speed;
-    if (s.y > canvas.height) { s.y = 0; s.x = Math.random() * canvas.width; }
-    ctx.beginPath();
-    ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-    ctx.fillStyle = `rgba(180,160,220,${s.opacity})`;
-    ctx.fill();
-  });
-
-  // Планеты
-  planets.forEach(p => {
-    p.angle += p.speed;
-    drawPlanet(p);
-  });
-
-  requestAnimationFrame(animate);
+function frame(){
+  cx.clearRect(0,0,cv.width,cv.height);
+  const bg=cx.createRadialGradient(cv.width/2,cv.height/2,0,cv.width/2,cv.height/2,cv.width*.8);
+  bg.addColorStop(0,'#050008');bg.addColorStop(1,'#000');
+  cx.fillStyle=bg;cx.fillRect(0,0,cv.width,cv.height);
+  const nb=cx.createRadialGradient(cv.width*.25,cv.height*.35,0,cv.width*.25,cv.height*.35,cv.width*.45);
+  nb.addColorStop(0,'rgba(30,0,50,0.07)');nb.addColorStop(1,'transparent');
+  cx.fillStyle=nb;cx.fillRect(0,0,cv.width,cv.height);
+  ST.forEach(s=>{s.y+=s.s;if(s.y>cv.height){s.y=0;s.x=Math.random()*cv.width;}cx.beginPath();cx.arc(s.x,s.y,s.r,0,Math.PI*2);cx.fillStyle=`rgba(180,160,220,${s.o})`;cx.fill();});
+  PL.forEach(p=>{p.a+=p.sp;drawP(p);});
+  requestAnimationFrame(frame);
 }
-animate(0);
+frame();
 </script>
 </body>
 </html>
