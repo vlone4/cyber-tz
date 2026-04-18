@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cyber Security Simulator — ТЗ</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: #0a0e1a;
+            color: #e0e0e0;
+            font-family: 'Segoe UI', sans-serif;
+            min-height: 100vh;
+        }
+
+        /* Шапка */
+        .header {
+            background: linear-gradient(135deg, #0d1b2a, #1a2a4a);
+            border-bottom: 2px solid #1e90ff44;
+            padding: 20px 16px 16px;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-icon { font-size: 36px; margin-bottom: 6px; }
+
+        .header h1 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: 1px;
+        }
+
+        .header p {
+            font-size: 12px;
+            color: #1e90ff;
+            margin-top: 4px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        /* Навигация */
+        .nav {
+            display: flex;
+            overflow-x: auto;
+            gap: 8px;
+            padding: 12px 16px;
+            background: #0d1220;
+            border-bottom: 1px solid #1e3a5f33;
+            scrollbar-width: none;
+        }
+        .nav::-webkit-scrollbar { display: none; }
+
+        .nav-btn {
+            flex-shrink: 0;
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: 1px solid #1e90ff44;
+            background: transparent;
+            color: #8899aa;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .nav-btn.active {
+            background: #1e90ff22;
+            border-color: #1e90ff;
+            color: #1e90ff;
+        }
+
+        /* Контент */
+        .content {
+            padding: 16px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .section { display: none; }
+        .section.active { display: block; }
+
+        /* Карточки */
+        .card {
+            background: #0d1b2a;
+            border: 1px solid #1e3a5f55;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 3px; height: 100%;
+            background: var(--accent, #1e90ff);
+        }
+
+        .card-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-title .icon { font-size: 18px; }
+
+        .card p {
+            font-size: 13px;
+            color: #8899aa;
+            line-height: 1.6;
+        }
+
+        /* Список */
+        .list { list-style: none; }
+        .list li {
+            font-size: 13px;
+            color: #aabbcc;
+            padding: 6px 0;
+            border-bottom: 1px solid #1e3a5f22;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            line-height: 1.5;
+        }
+        .list li:last-child { border-bottom: none; }
+        .list li::before {
+            content: '▸';
+            color: #1e90ff;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        /* Бейджи */
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 600;
+            margin: 2px;
+        }
+        .badge-blue { background: #1e90ff22; color: #1e90ff; border: 1px solid #1e90ff44; }
+        .badge-green { background: #00ff8822; color: #00ff88; border: 1px solid #00ff8844; }
+        .badge-red { background: #ff444422; color: #ff6666; border: 1px solid #ff444444; }
+        .badge-yellow { background: #ffcc0022; color: #ffcc00; border: 1px solid #ffcc0044; }
+
+        /* Комната */
+        .room-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .room-item {
+            background: #0d1b2a;
+            border: 1px solid #1e3a5f55;
+            border-radius: 10px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .room-item .emoji { font-size: 28px; margin-bottom: 6px; }
+        .room-item .name { font-size: 12px; color: #fff; font-weight: 600; }
+        .room-item .desc { font-size: 11px; color: #667788; margin-top: 3px; }
+
+        /* Прогресс */
+        .progress-bar {
+            background: #1e3a5f33;
+            border-radius: 4px;
+            height: 6px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            border-radius: 4px;
+            background: linear-gradient(90deg, #1e90ff, #00ccff);
+        }
+
+        /* Секция заголовок */
+        .section-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .section-title::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #1e3a5f44;
+        }
+
+        /* Квест */
+        .quest-item {
+            background: #0d1b2a;
+            border: 1px solid #1e3a5f55;
+            border-radius: 10px;
+            padding: 12px 14px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .quest-num {
+            width: 28px; height: 28px;
+            border-radius: 50%;
+            background: #1e90ff22;
+            border: 1px solid #1e90ff44;
+            color: #1e90ff;
+            font-size: 12px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .quest-text { font-size: 13px; color: #ccd; line-height: 1.4; }
+        .quest-text strong { color: #fff; }
+
+        /* Терминал */
+        .terminal {
+            background: #050a0f;
+            border: 1px solid #1e90ff33;
+            border-radius: 8px;
+            padding: 12px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            margin-bottom: 12px;
+        }
+        .terminal .prompt { color: #90ee90; }
+        .terminal .cmd { color: #fff; }
+        .terminal .out { color: #667788; }
+
+        /* Статус */
+        .status-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #1e3a5f22;
+            font-size: 13px;
+        }
+        .status-row:last-child { border-bottom: none; }
+        .status-label { color: #8899aa; }
+        .status-value { color: #fff; font-weight: 600; }
+        .status-dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+        }
+        .dot-green { background: #00ff88; box-shadow: 0 0 6px #00ff88; }
+        .dot-yellow { background: #ffcc00; box-shadow: 0 0 6px #ffcc00; }
+        .dot-red { background: #ff4444; box-shadow: 0 0 6px #ff4444; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <div class="header-icon">🐉</div>
+    <h1>CYBER SECURITY SIMULATOR</h1>
+    <p>Техническое задание</p>
+</div>
+
+<div class="nav">
+    <button class="nav-btn active" onclick="showSection('overview')">📋 Обзор</button>
+    <button class="nav-btn" onclick="showSection('room')">🏠 Комната</button>
+    <button class="nav-btn" onclick="showSection('gameplay')">🎮 Геймплей</button>
+    <button class="nav-btn" onclick="showSection('terminal')">💻 Терминал</button>
+    <button class="nav-btn" onclick="showSection('quests')">📜 Квесты</button>
+    <button class="nav-btn" onclick="showSection('tech')">⚙️ Технологии</button>
+</div>
+
+<div class="content">
+
+    <!-- ОБЗОР -->
+    <div class="section active" id="overview">
+        <div class="section-title">📋 Общий обзор</div>
+
+        <div class="card" style="--accent: #1e90ff">
+            <div class="card-title"><span class="icon">🎯</span> Концепция игры</div>
+            <p>Игрок получает угрожающее сообщение от незнакомца, который утверждает что нашёл его IP. Нужно использовать OSINT-техники чтобы вычислить незнакомца первым, собрать доказательства и подать анонимный донос в полицию.</p>
+        </div>
+
+        <div class="card" style="--accent: #00ff88">
+            <div class="card-title"><span class="icon">🕹️</span> Жанр и стиль</div>
+            <ul class="list">
+                <li>FPS от первого лица — ходим по комнате</li>
+                <li>Симулятор хакера с реальными техниками</li>
+                <li>Атмосфера Kali Linux / киберпанк</li>
+                <li>Нарративный детектив с OSINT механиками</li>
+            </ul>
+        </div>
+
+        <div class="card" style="--accent: #ffcc00">
+            <div class="card-title"><span class="icon">📊</span> Статус разработки</div>
+            <div class="status-row">
+                <span class="status-label">Движок</span>
+                <span class="status-value"><span class="status-dot dot-green"></span>Godot 4</span>
+            </div>
+            <div class="status-row">
+                <span class="status-label">Терминал Kali</span>
+                <span class="status-value"><span class="status-dot dot-yellow"></span>В разработке</span>
+            </div>
+            <div class="status-row">
+                <span class="status-label">Комната / FPS</span>
+                <span class="status-value"><span class="status-dot dot-red"></span>Запланировано</span>
+            </div>
+            <div class="status-row">
+                <span class="status-label">Квесты</span>
+                <span class="status-value"><span class="status-dot dot-red"></span>Запланировано</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- КОМНАТА -->
+    <div class="section" id="room">
+        <div class="section-title">🏠 Дизайн комнаты</div>
+
+        <div class="card" style="--accent: #1e90ff">
+            <div class="card-title"><span class="icon">🗺️</span> Планировка</div>
+            <p>Небольшая комната хакера. Тёмная атмосфера, синяя подсветка от мониторов. Стиль — реалистичный киберпанк.</p>
+        </div>
+
+        <div class="room-grid">
+            <div class="room-item">
+                <div class="emoji">🛏️</div>
+                <div class="name">Кровать</div>
+                <div class="desc">Декорация, угол комнаты</div>
+            </div>
+            <div class="room-item">
+                <div class="emoji">🖥️</div>
+                <div class="name">Стол + ноутбук</div>
+                <div class="desc">Главный объект взаимодействия</div>
+            </div>
+            <div class="room-item">
+                <div class="emoji">💡</div>
+                <div class="name">Освещение</div>
+                <div class="desc">Синяя LED подсветка</div>
+            </div>
+            <div class="room-item">
+                <div class="emoji">📱</div>
+                <div class="name">Телефон</div>
+                <div class="desc">Получение сообщений</div>
+            </div>
+            <div class="room-item">
+                <div class="emoji">📚</div>
+                <div class="name">Полки</div>
+                <div class="desc">Книги по хакингу</div>
+            </div>
+            <div class="room-item">
+                <div class="emoji">🪟</div>
+                <div class="name">Окно</div>
+                <div class="desc">Ночной город снаружи</div>
+            </div>
+        </div>
+
+        <div class="card" style="--accent: #00ff88">
+            <div class="card-title"><span class="icon">🎮</span> Управление в комнате</div>
+            <ul class="list">
+                <li>WASD — передвижение</li>
+                <li>Мышь — обзор камеры</li>
+                <li>E — взаимодействие с объектами</li>
+                <li>ESC — пауза / выход из ноутбука</li>
+                <li>F — фонарик (опционально)</li>
+            </ul>
+        </div>
+
+        <div class="card" style="--accent: #ff6666">
+            <div class="card-title"><span class="icon">✨</span> Атмосфера</div>
+            <ul class="list">
+                <li>Ночное время суток</li>
+                <li>Синяя/фиолетовая подсветка мониторов</li>
+                <li>Звуки вентилятора ПК, клавиатуры</li>
+                <li>Уведомление на телефоне в начале игры</li>
+                <li>Постеры на стенах (хакерская тематика)</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- ГЕЙМПЛЕЙ -->
+    <div class="section" id="gameplay">
+        <div class="section-title">🎮 Геймплей</div>
+
+        <div class="card" style="--accent: #1e90ff">
+            <div class="card-title"><span class="icon">📖</span> История</div>
+            <p>Незнакомец пишет тебе угрожающее сообщение и утверждает что знает твой IP. Ты должен вычислить его первым — найти личность, собрать досье и сдать в полицию.</p>
+        </div>
+
+        <div class="card" style="--accent: #00ff88">
+            <div class="card-title"><span class="icon">🔍</span> OSINT механики</div>
+            <ul class="list">
+                <li>Поиск по нику в соцсетях</li>
+                <li>Анализ IP адреса через терминал</li>
+                <li>Сбор информации через nmap, whois, dig</li>
+                <li>Просмотр профилей в браузере</li>
+                <li>Составление досье на цель</li>
+                <li>Анонимный донос в полицию</li>
+            </ul>
+        </div>
+
+        <div class="card" style="--accent: #ffcc00">
+            <div class="card-title"><span class="icon">🖥️</span> Интерфейс Kali OS</div>
+            <ul class="list">
+                <li>Рабочий стол с иконками</li>
+                <li>Терминал с реальными командами</li>
+                <li>Браузер для OSINT поиска</li>
+                <li>Мессенджер для общения с целью</li>
+                <li>Файловый менеджер для досье</li>
+            </ul>
+        </div>
+
+        <div class="card" style="--accent: #ff6666">
+            <div class="card-title"><span class="icon">🎬</span> Катсцены</div>
+            <ul class="list">
+                <li>Вступление — получение угрозы</li>
+                <li>Обнаружение цели — момент "нашёл"</li>
+                <li>Финал — отправка доноса в полицию</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- ТЕРМИНАЛ -->
+    <div class="section" id="terminal">
+        <div class="section-title">💻 Терминал Kali Linux</div>
+
+        <div class="terminal">
+            <div><span class="prompt">┌──(kali㉿kali)-[~]</span></div>
+            <div><span class="prompt">└─$ </span><span class="cmd">nmap 192.168.1.100</span></div>
+            <div class="out">Starting Nmap 7.94...</div>
+            <div class="out">PORT    STATE  SERVICE</div>
+            <div class="out">22/tcp  open   ssh</div>
+            <div class="out">80/tcp  open   http</div>
+            <br>
+            <div><span class="prompt">┌──(kali㉿kali)-[~]</span></div>
+            <div><span class="prompt">└─$ </span><span class="cmd">whois darkweb.onion</span></div>
+            <div class="out">Registrant: HIDDEN</div>
+            <div class="out">Country: RU</div>
+        </div>
+
+        <div class="card" style="--accent: #1e90ff">
+            <div class="card-title"><span class="icon">⌨️</span> Поддерживаемые команды</div>
+            <div style="margin-top: 4px;">
+                <span class="badge badge-green">ls</span>
+                <span class="badge badge-green">cd</span>
+                <span class="badge badge-green">pwd</span>
+                <span class="badge badge-green">cat</span>
+                <span class="badge badge-green">whoami</span>
+                <span class="badge badge-blue">nmap</span>
+                <span class="badge badge-blue">whois</span>
+                <span class="badge badge-blue">dig</span>
+                <span class="badge badge-blue">curl</span>
+                <span class="badge badge-yellow">sudo</span>
+                <span class="badge badge-yellow">john</span>
+                <span class="badge badge-red">metasploit</span>
+                <span class="badge badge-red">aircrack-ng</span>
+            </div>
+        </div>
+
+        <div class="card" style="--accent: #00ff88">
+            <div class="card-title"><span class="icon">🎨</span> Визуал терминала</div>
+            <ul class="list">
+                <li>Заголовок: "kali@kali: ~" по центру</li>
+                <li>Иконка 💻 слева в заголовке</li>
+                <li>Кнопки окна справа (синяя закрыть, серые)</li>
+                <li>Меню: Сессия, Действия, Правка, Вид, Справка</li>
+                <li>Промпт: зелёные скобки, синий kali㉿kali</li>
+                <li>Мигающий курсор █</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- КВЕСТЫ -->
+    <div class="section" id="quests">
+        <div class="section-title">📜 Квесты</div>
+
+        <div class="quest-item">
+            <div class="quest-num">1</div>
+            <div class="quest-text"><strong>Получить угрозу</strong><br>Незнакомец пишет сообщение с угрозой</div>
+        </div>
+        <div class="quest-item">
+            <div class="quest-num">2</div>
+            <div class="quest-text"><strong>Открыть ноутбук</strong><br>Подойти к столу и нажать E</div>
+        </div>
+        <div class="quest-item">
+            <div class="quest-num">3</div>
+            <div class="quest-text"><strong>Запустить терминал</strong><br>Открыть Kali Linux терминал</div>
+        </div>
+        <div class="quest-item">
+            <div class="quest-num">4</div>
+            <div class="quest-text"><strong>Пробить IP</strong><br>Использовать nmap для сканирования</div>
+        </div>
+        <div class="quest-item">
+            <div class="quest-num">5</div>
+            <div class="quest-text"><strong>OSINT по нику</strong><br>Найти профили в соцсетях через браузер</div>
+        </div>
+        <div class="quest-item">
+            <div class="quest-num">6</div>
+            <div class="quest-text"><strong>Собрать досье</strong><strong></strong><br>Сохранить все данные в файл</div>
+        </div>
+        <div class="quest-item">
+            <div class="quest-num">7</div>
+            <div class="quest-text"><strong>Подать донос</strong><br>Отправить анонимный отчёт в полицию</div>
+        </div>
+
+        <div class="card" style="--accent: #ffcc00; margin-top: 14px;">
+            <div class="card-title"><span class="icon">🏆</span> Финал</div>
+            <p>После подачи доноса — катсцена с арестом незнакомца. Титры. Игра пройдена.</p>
+        </div>
+    </div>
+
+    <!-- ТЕХНОЛОГИИ -->
+    <div class="section" id="tech">
+        <div class="section-title">⚙️ Технологии</div>
+
+        <div class="card" style="--accent: #1e90ff">
+            <div class="card-title"><span class="icon">🔧</span> Стек</div>
+            <div class="status-row">
+                <span class="status-label">Движок</span>
+                <span class="status-value">Godot 4.6</span>
+            </div>
+            <div class="status-row">
+                <span class="status-label">Язык</span>
+                <span class="status-value">GDScript</span>
+            </div>
+            <div class="status-row">
+                <span class="status-label">Рендер</span>
+                <span class="status-value">Forward+ (D3D12)</span>
+            </div>
+            <div class="status-row">
+                <span class="status-label">Платформа</span>
+                <span class="status-value">Windows / PC</span>
+            </div>
+        </div>
+
+        <div class="card" style="--accent: #00ff88">
+            <div class="card-title"><span class="icon">📁</span> Структура проекта</div>
+            <ul class="list">
+                <li>scenes/terminal/ — терминал Kali</li>
+                <li>scenes/room/ — 3D комната</li>
+                <li>scenes/ui/ — интерфейс ОС</li>
+                <li>scripts/player/ — FPS контроллер</li>
+                <li>scripts/quests/ — система квестов</li>
+                <li>assets/ — модели, текстуры, звуки</li>
+            </ul>
+        </div>
+
+        <div class="card" style="--accent: #ff6666">
+            <div class="card-title"><span class="icon">💻</span> Железо разработчика</div>
+            <div class="status-row">
+                <span class="status-label">GPU</span>
+                <span class="status-value">RTX 3060</span>
+            </div>
+            <div class="status-row">
+                <span class="status-label">RAM</span>
+                <span class="status-value">32 GB</span>
+            </div>
+            <div class="status-row">
+                <span class="status-label">ОС</span>
+                <span class="status-value">Windows</span>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // Инициализация Telegram Web App
+    const tg = window.Telegram.WebApp;
+    tg.ready();
+    tg.expand();
+
+    // Применяем тему Telegram
+    document.body.style.background = tg.colorScheme === 'light' ? '#f0f4f8' : '#0a0e1a';
+
+    function showSection(id) {
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        event.target.classList.add('active');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+</script>
+
+</body>
+</html>
